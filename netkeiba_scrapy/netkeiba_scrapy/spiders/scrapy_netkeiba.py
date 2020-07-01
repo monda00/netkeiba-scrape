@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import csv
 import scrapy
 from netkeiba_scrapy.items import RaceUrl
+from netkeiba_scrapy.items import Horse
 
 class RaceUrlSpider(scrapy.Spider):
     name = 'scrapy_race_url'
@@ -37,3 +39,32 @@ class RaceUrlSpider(scrapy.Spider):
             return False
         else:
             return True
+
+class Horse(scrapy.Spider):
+    name = 'scrapy_horse'
+    allowed_domains = ['db.sp.netkeiba.com']
+
+    def start_requests(self):
+        """
+        csvファイルからurlのリストを取得
+        """
+        urls = []
+        with open('../../url.csv') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if not row[0] == 'url':
+                    urls.append(row)
+
+        for url in urls:
+            yield scrapy.Request(url[0], self.parse)
+
+    def parse(self, response):
+        """
+        レースページから各馬の情報を取得
+        """
+
+    def exist_next_rank():
+        """
+        レースの結果一覧の次の順位があるか
+        """
+        return False

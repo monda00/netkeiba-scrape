@@ -12,7 +12,7 @@
       "cwd": "${fileDirname}",
       "args": [
         "crawl",
-        "scrapy_netkeiba"
+        "scrapy_horse"
       ],
       "console": "integratedTerminal"
     }

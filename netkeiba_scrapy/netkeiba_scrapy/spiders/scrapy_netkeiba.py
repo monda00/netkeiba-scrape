@@ -49,7 +49,7 @@ class Horse(scrapy.Spider):
         csvファイルからurlのリストを取得
         """
         urls = []
-        with open('./url.csv') as f:
+        with open('./url_test.csv') as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row[0] == 'url':
@@ -92,7 +92,7 @@ class Horse(scrapy.Spider):
             horse_weight = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[15]/text()'.format(rank)).extract_first()
 
-            yield Horse(
+            horse = Horse(
                 name=name,
                 race_name=race_name,
                 race_date=race_date,
@@ -108,7 +108,9 @@ class Horse(scrapy.Spider):
                 horse_weight=horse_weight,
                 rane=rank
             )
+            yield {'horse': horse}
             rank += 1
+        return
 
     def exist_next_rank(self, response, rank):
         """

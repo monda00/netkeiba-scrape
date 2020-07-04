@@ -8,10 +8,10 @@
 import scrapy
 
 
-class RaceUrl(scrapy.Item):
+class RaceUrlItem(scrapy.Item):
     url = scrapy.Field()
 
-class Horse(scrapy.Item):
+class HorseItem(scrapy.Item):
     name = scrapy.Field()
     race_name = scrapy.Field()
     race_date = scrapy.Field()

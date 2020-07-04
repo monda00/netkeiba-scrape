@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 import scrapy
-from netkeiba_scrapy.items import RaceUrl
-from netkeiba_scrapy.items import Horse
+from netkeiba_scrapy.items import RaceUrlItem
+from netkeiba_scrapy.items import HorseItem
 
 class RaceUrlSpider(scrapy.Spider):
     name = 'scrapy_race_url'
@@ -21,7 +21,7 @@ class RaceUrlSpider(scrapy.Spider):
         """
         urls = response.xpath('//div[@class="LinkBox_01 fc"]/a/@href').extract()
         for url in urls:
-            yield RaceUrl(url=url)
+            yield RaceUrlItem(url=url)
 
         if self.exist_next_page(response):
             next_page_url = self.base_url + response.xpath(
@@ -49,7 +49,7 @@ class Horse(scrapy.Spider):
         csvファイルからurlのリストを取得
         """
         urls = []
-        with open('./url_test.csv') as f:
+        with open('./url.csv') as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row[0] == 'url':
@@ -65,50 +65,36 @@ class Horse(scrapy.Spider):
         rank = 1
 
         while self.exist_next_rank(response, rank):
-            name = response.xpath(
+            item = HorseItem()
+            item['name'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[4]/a/text()'.format(rank)).extract_first()
-            race_name = response.xpath(
+            item['race_name'] = response.xpath(
                 '//span[@class="RaceName_main"]/text()').extract_first()
-            race_date = response.xpath(
+            item['race_date'] = response.xpath(
                 '//span[@class="Race_Date"]/text()').extract_first().replace('\n', '')
-            frame_number = response.xpath(
+            item['frame_number'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[2]/text()'.format(rank)).extract_first()
-            horse_number = response.xpath(
+            item['horse_number'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[3]/text()'.format(rank)).extract_first()
-            age = response.xpath(
+            item['age'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[5]/text()'.format(rank)).extract_first()
-            weight = response.xpath(
+            item['weight'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[6]/text()'.format(rank)).extract_first()
-            jockey = response.xpath(
+            item['jockey'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[7]/a/text()'.format(rank)).extract_first()
-            time = response.xpath(
+            item['time'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[8]/text()'.format(rank)).extract_first()
-            agari = response.xpath(
+            item['agari'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[12]/text()'.format(rank)).extract_first()
-            win = response.xpath(
+            item['win'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[13]/text()'.format(rank)).extract_first()
-            popular = response.xpath(
+            item['popular'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[14]/text()'.format(rank)).extract_first()
-            horse_weight = response.xpath(
+            item['horse_weight'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[15]/text()'.format(rank)).extract_first()
+            item['rank'] = rank
 
-            horse = Horse(
-                name=name,
-                race_name=race_name,
-                race_date=race_date,
-                frame_number=frame_number,
-                horse_number=horse_number,
-                age=age,
-                weight=weight,
-                jockey=jockey,
-                time=time,
-                agari=agari,
-                win=win,
-                popular=popular,
-                horse_weight=horse_weight,
-                rane=rank
-            )
-            yield {'horse': horse}
+            yield item
             rank += 1
         return
 

@@ -26,3 +26,15 @@ class HorseItem(scrapy.Item):
     popular = scrapy.Field()
     horse_weight = scrapy.Field()
     rank = scrapy.Field()
+
+class RaceItem(scrapy.Item):
+    name = scrapy.Field()
+    date = scrapy.Field()
+    start_time = scrapy.Field()
+    place = scrapy.Field()
+    race_round = scrapy.Field()
+    distance = scrapy.Field()
+    clockwise = scrapy.Field()
+    field_type = scrapy.Field()
+    field_condition = scrapy.Field()
+    weather = scrapy.Field()

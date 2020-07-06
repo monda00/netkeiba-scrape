@@ -12,6 +12,7 @@ class RaceUrlItem(scrapy.Item):
     url = scrapy.Field()
 
 class HorseItem(scrapy.Item):
+    race_id = scrapy.Field()
     name = scrapy.Field()
     race_name = scrapy.Field()
     race_date = scrapy.Field()
@@ -28,6 +29,7 @@ class HorseItem(scrapy.Item):
     rank = scrapy.Field()
 
 class RaceItem(scrapy.Item):
+    race_id = scrapy.Field()
     name = scrapy.Field()
     date = scrapy.Field()
     start_time = scrapy.Field()

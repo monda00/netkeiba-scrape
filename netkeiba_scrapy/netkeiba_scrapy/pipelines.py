@@ -5,6 +5,8 @@ class NetkeibaScrapyPipeline:
     def open_spider(self, spider):
         if spider.name == 'scrapy_horse':
             self.csvfile = open('horse.csv', 'wb')
+        elif spider.name == 'scrapy_race':
+            self.csvfile = open('race.csv', 'wb')
 
         self.exporter = CsvItemExporter(self.csvfile)
         self.exporter.start_exporting()

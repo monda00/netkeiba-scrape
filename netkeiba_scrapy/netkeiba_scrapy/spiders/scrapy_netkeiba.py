@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 import scrapy
-from netkeiba_scrapy.items import RaceUrlItem
-from netkeiba_scrapy.items import HorseItem
+import re
+from netkeiba_scrapy.items import RaceUrlItem, HorseItem, RaceItem
 
 class RaceUrlSpider(scrapy.Spider):
     name = 'scrapy_race_url'
@@ -66,6 +66,8 @@ class Horse(scrapy.Spider):
 
         while self.exist_next_rank(response, rank):
             item = HorseItem()
+            race_id = re.search(r'\d{12}', response.url)
+            item['race_id'] = race_id.group()
             item['name'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[4]/a/text()'.format(rank)).extract_first()
             item['race_name'] = response.xpath(
@@ -106,3 +108,51 @@ class Horse(scrapy.Spider):
             return False
         else:
             return True
+
+class Race(scrapy.Spider):
+    name = 'scrapy_race'
+    allowed_domains = ['db.sp.netkeiba.com']
+
+    def start_requests(self):
+        """
+        csvファイルからurlのリストを取得
+        """
+        urls = []
+        with open('./url.csv') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if not row[0] == 'url':
+                    urls.append(row)
+
+        for url in urls:
+            yield scrapy.Request(url[0], self.parse)
+
+    def parse(self, response):
+        """
+        レースページからレースの情報を取得
+        """
+        item = RaceItem()
+        race_id = re.search(r'\d{12}', response.url)
+        item['race_id'] = race_id.group()
+        item['name'] = response.xpath(
+            '//span[@class="RaceName_main"]/text()').extract_first()
+        item['date'] = response.xpath(
+            '//span[@class="Race_Date"]/text()').extract_first().replace('\n', '')
+        start_time = re.search(r'\d{2}:\d{2}', response.xpath('//div[@class="RaceData"]/span/text()').extract_first())
+        item['start_time'] = start_time.group()
+        item['place'] = response.xpath(
+            '//select[@class="Race_Select"]/option[@selected]/text()').extract()[0]
+        item['race_round'] = response.xpath(
+            '//select[@class="Race_Select"]/option[@selected]/text()').extract()[1]
+        racedata_dirt = str(response.xpath(
+            '//div[@class="RaceData"]/span[@class="Dirt"]/text()').extract())
+        distance = re.search(r'\d{4}', racedata_dirt)
+        item['distance'] = distance.group()
+        clockwise = re.search(r'\(.*?\)', racedata_dirt)
+        item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
+        item['field_type'] = racedata_dirt[0]
+        item['field_condition'] = response.xpath(
+            '//div[@class="RaceData"]/span/text()').extract()[3]
+        item['weather'] = response.xpath(
+            '//div[@class="RaceData"]/span/text()').extract()[2]
+        yield item

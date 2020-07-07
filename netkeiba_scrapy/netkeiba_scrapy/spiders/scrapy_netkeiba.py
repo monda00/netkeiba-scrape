@@ -144,15 +144,26 @@ class Race(scrapy.Spider):
             '//select[@class="Race_Select"]/option[@selected]/text()').extract()[0]
         item['race_round'] = response.xpath(
             '//select[@class="Race_Select"]/option[@selected]/text()').extract()[1]
-        racedata_dirt = str(response.xpath(
-            '//div[@class="RaceData"]/span[@class="Dirt"]/text()').extract())
-        distance = re.search(r'\d{4}', racedata_dirt)
-        item['distance'] = distance.group()
-        clockwise = re.search(r'\(.*?\)', racedata_dirt)
-        item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
-        item['field_type'] = racedata_dirt[0]
-        item['field_condition'] = response.xpath(
-            '//div[@class="RaceData"]/span/text()').extract()[3]
-        item['weather'] = response.xpath(
-            '//div[@class="RaceData"]/span/text()').extract()[2]
+
+        racedata_dirt = response.xpath(
+            '//div[@class="RaceData"]/span[@class="Dirt"]/text()').extract_first()
+        if racedata_dirt:
+            distance = re.search(r'\d{3,4}', racedata_dirt)
+            item['distance'] = distance.group()
+            clockwise = re.search(r'\(.*?\)', racedata_dirt)
+            item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
+            item['field_type'] = racedata_dirt[0]
+            item['field_condition'] = response.xpath(
+                '//div[@class="RaceData"]/span/text()').extract()[3]
+            item['weather'] = response.xpath(
+                '//div[@class="RaceData"]/span/text()').extract()[2]
+        else:
+            racedata_turf = str(response.xpath(
+                '//div[@class="RaceData"]/span[@class="Turf"]/text()').extract())
+            distance = re.search(r'\d{3}', racedata_turf)
+            item['distance'] = distance.group()
+            clockwise = re.search(r'\(.*?\)', racedata_turf)
+            item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
+            item['weather'] = response.xpath(
+                '//div[@class="RaceData"]/span/text()').extract()[2]
         yield item

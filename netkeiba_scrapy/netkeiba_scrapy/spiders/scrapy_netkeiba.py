@@ -66,7 +66,7 @@ class Horse(scrapy.Spider):
 
         while self.exist_next_rank(response, rank):
             item = HorseItem()
-            race_id = re.search(r'\d{12}', response.url)
+            race_id = re.search(r'[0-9a-zA-Z]{12}', response.url)
             item['race_id'] = race_id.group()
             item['name'] = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[4]/a/text()'.format(rank)).extract_first()
@@ -132,7 +132,7 @@ class Race(scrapy.Spider):
         レースページからレースの情報を取得
         """
         item = RaceItem()
-        race_id = re.search(r'\d{12}', response.url)
+        race_id = re.search(r'[0-9a-zA-Z]{12}', response.url)
         item['race_id'] = race_id.group()
         item['name'] = response.xpath(
             '//span[@class="RaceName_main"]/text()').extract_first()

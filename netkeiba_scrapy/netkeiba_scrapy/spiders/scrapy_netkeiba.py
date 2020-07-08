@@ -68,8 +68,13 @@ class Horse(scrapy.Spider):
             item = HorseItem()
             race_id = re.search(r'[0-9a-zA-Z]{12}', response.url)
             item['race_id'] = race_id.group()
-            item['name'] = response.xpath(
+            name = response.xpath(
                 '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[4]/a/text()'.format(rank)).extract_first()
+            if name:
+                item['name'] = name
+            else:
+                item['name'] = response.xpath(
+                    '//table[@class="table_slide_body ResultsByRaceDetail"]//tr[{}]/td[4]/text()'.format(rank)).extract_first()
             item['race_name'] = response.xpath(
                 '//span[@class="RaceName_main"]/text()').extract_first()
             item['race_date'] = response.xpath(

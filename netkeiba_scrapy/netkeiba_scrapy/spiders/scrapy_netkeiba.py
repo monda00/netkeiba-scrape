@@ -49,7 +49,7 @@ class Horse(scrapy.Spider):
         csvファイルからurlのリストを取得
         """
         urls = []
-        with open('./url.csv') as f:
+        with open('./output/url.csv') as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row[0] == 'url':
@@ -123,7 +123,7 @@ class Race(scrapy.Spider):
         csvファイルからurlのリストを取得
         """
         urls = []
-        with open('./url.csv') as f:
+        with open('./output/url.csv') as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row[0] == 'url':

@@ -146,30 +146,29 @@ class Race(scrapy.Spider):
         start_time = re.search(r'\d{2}:\d{2}', response.xpath('//div[@class="RaceData"]/span/text()').extract_first())
         if start_time:
             item['start_time'] = start_time.group()
-        item['place'] = response.xpath(
+        place = response.xpath(
             '//select[@class="Race_Select"]/option[@selected]/text()').extract()[0]
+        item['place'] = place
         item['race_round'] = response.xpath(
             '//select[@class="Race_Select"]/option[@selected]/text()').extract()[1]
 
-        racedata_dirt = response.xpath(
-            '//div[@class="RaceData"]/span[@class="Dirt"]/text()').extract_first()
-        if racedata_dirt:
-            distance = re.search(r'\d{3,4}', racedata_dirt)
+        racedata_field = response.xpath(
+            '//div[@class="RaceData"]/span[@class="Turf" or @class="Dirt"]/text()').extract_first()
+        if place == '帯広(ば)':
+            distance = re.search(r'\d{3}', racedata_field)
             item['distance'] = distance.group()
-            clockwise = re.search(r'\(.*?\)', racedata_dirt)
+            clockwise = re.search(r'\(.*?\)', racedata_field)
             item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
-            item['field_type'] = racedata_dirt[0]
-            item['field_condition'] = response.xpath(
-                '//div[@class="RaceData"]/span/text()').extract()[-1]
             item['weather'] = response.xpath(
                 '//div[@class="RaceData"]/span[@class="WeatherData"]/text()').extract_first()
         else:
-            racedata_turf = str(response.xpath(
-                '//div[@class="RaceData"]/span[@class="Turf"]/text()').extract())
-            distance = re.search(r'\d{3}', racedata_turf)
+            distance = re.search(r'\d{3,4}', racedata_field)
             item['distance'] = distance.group()
-            clockwise = re.search(r'\(.*?\)', racedata_turf)
+            clockwise = re.search(r'\(.*?\)', racedata_field)
             item['clockwise'] = clockwise.group().replace('(', '').replace(')', '')
+            item['field_type'] = racedata_field[0]
+            item['field_condition'] = response.xpath(
+                '//div[@class="RaceData"]/span/text()').extract()[-1]
             item['weather'] = response.xpath(
                 '//div[@class="RaceData"]/span[@class="WeatherData"]/text()').extract_first()
         yield item
